@@ -8,6 +8,8 @@ namespace TwitterScratch
 {
     public class Program
     {
+
+
         public static void Main(string[] args)
         {
             var program = new Program();
@@ -17,22 +19,25 @@ namespace TwitterScratch
 
         public async Task MainAsync(string[] args)
         {
-            var credentialses = GetCredentialses();
-            foreach (var credentials in credentialses)
+            var credentials = new TwitterCredentials
             {
-                await PullTweetsForScreenName("whatsupanna", credentials);
-                await PullReceivedDirectMessages(credentials);
-                await PullSentDirectMessages(credentials);
-            }
+            };
+            await PullUser(new []{ "", "", "" }, credentials);
+            //await PullTweetsForScreenName("", credentials);
+            //await PullReceivedDirectMessages(credentials);
+            //await PullSentDirectMessages(credentials);
         }
 
-        private static IEnumerable<TwitterCredentials> GetCredentialses()
+        private static async Task PullUser(IEnumerable<string> screennames, TwitterCredentials credentials)
         {
-            using (var ctx = new CredentialsContext())
+            var service = CreateTwitterService(credentials);
+
+            var r = await service.ListFriendshipsForAsync(new ListFriendshipsForOptions
             {
-                //TODO: This isn't async...
-                return ctx.TwitterCredentialses.ToArray();
-            }
+                ScreenName = screennames
+            });
+            
+            Console.WriteLine(r.Value?.ToString() ?? "");
         }
 
         private static async Task PullTweetsForScreenName(string screenName, TwitterCredentials credentials)
